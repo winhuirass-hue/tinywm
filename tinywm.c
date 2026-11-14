@@ -4,6 +4,7 @@
  * and is provided AS IS, with NO WARRANTY. */
 
 #include <X11/Xlib.h>
+#include <stdio.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -15,6 +16,38 @@ int main(void)
     XEvent ev;
 
     if(!(dpy = XOpenDisplay(0x0))) return 1;
+
+    XSetErrorHandler(OnXError);
+
+    XSelectInput(
+        dpy,
+        DefaultRootWindow(dpy),
+        SubstructureRedirectMask |
+        SubstructureNotifyMask
+    );
+
+    XSync(dpy, False);
+
+    static int OnXError(Display *dpy,
+                    XErrorEvent *e)
+    {
+        if(e->error_code == BadAccess)
+        {
+            fprintf(stderr,
+                "Another WM is already running\n");
+        }
+
+        else 
+        {
+            fprintf(stderr,
+                    "XError: code=%d request=%d resource=%lu\n",
+                    e->error_code,
+                    e->request_code,
+                    e->resourceid);
+        }
+
+        return 0;
+    }
 
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F1")), Mod1Mask,
             DefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
@@ -29,6 +62,12 @@ int main(void)
         XNextEvent(dpy, &ev);
         if(ev.type == KeyPress && ev.xkey.subwindow != None)
             XRaiseWindow(dpy, ev.xkey.subwindow);
+            XSetInputFocus(
+                dpy,
+                win,
+                RevertToPointerRoot,
+                CurrentTime
+                );
         else if(ev.type == ButtonPress && ev.xbutton.subwindow != None)
         {
             XGetWindowAttributes(dpy, ev.xbutton.subwindow, &attr);
