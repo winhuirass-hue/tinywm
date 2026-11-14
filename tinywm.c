@@ -15,6 +15,7 @@ static int OnXError(Display *dpy,
      {
          fprintf(stderr,
             "Another WM is already running\n");
+         return 0;
      }
 
     else 
