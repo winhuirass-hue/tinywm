@@ -8,6 +8,27 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+static int OnXError(Display *dpy,
+                    XErrorEvent *e)
+ {
+     if(e->error_code == BadAccess)
+     {
+         fprintf(stderr,
+            "Another WM is already running\n");
+     }
+
+    else 
+    {
+        fprintf(stderr,
+                "XError: code=%d request=%d resource=%lu\n",
+                e->error_code,
+                e->request_code,
+                e->resourceid);
+        }
+
+        return 0;
+}
+
 int main(void)
 {
     Display * dpy;
@@ -27,27 +48,6 @@ int main(void)
     );
 
     XSync(dpy, False);
-
-    static int OnXError(Display *dpy,
-                    XErrorEvent *e)
-    {
-        if(e->error_code == BadAccess)
-        {
-            fprintf(stderr,
-                "Another WM is already running\n");
-        }
-
-        else 
-        {
-            fprintf(stderr,
-                    "XError: code=%d request=%d resource=%lu\n",
-                    e->error_code,
-                    e->request_code,
-                    e->resourceid);
-        }
-
-        return 0;
-    }
 
     XGrabKey(dpy, XKeysymToKeycode(dpy, XStringToKeysym("F1")), Mod1Mask,
             DefaultRootWindow(dpy), True, GrabModeAsync, GrabModeAsync);
