@@ -36,6 +36,13 @@ int main(void)
         }
         else if(ev.type == MotionNotify && start.subwindow != None)
         {
+               while(
+                XCheckTypedEvent(
+                    dpy,
+                    MotionNotify,
+                &ev
+        )
+    ); 
             int xdiff = ev.xbutton.x_root - start.x_root;
             int ydiff = ev.xbutton.y_root - start.y_root;
             XMoveResizeWindow(dpy, start.subwindow,
