@@ -64,7 +64,7 @@ int main(void)
             XRaiseWindow(dpy, ev.xkey.subwindow);
             XSetInputFocus(
                 dpy,
-                win,
+                ev.xkey.subwindow,
                 RevertToPointerRoot,
                 CurrentTime
                 );
